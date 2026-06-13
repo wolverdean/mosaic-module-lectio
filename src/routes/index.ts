@@ -6,6 +6,7 @@ import { createReadingsRouter }      from './readings.js'
 import { createContemplativeRouter } from './contemplative.js'
 import { createIgnatianRouter }      from './ignatian.js'
 import { createIntercessionsRouter } from './intercessions.js'
+import { createPrayersRouter }       from './prayers.js'
 
 export function createRouter(ctxRef: { current: ModuleContext | null }): Router {
   const router = Router()
@@ -14,6 +15,7 @@ export function createRouter(ctxRef: { current: ModuleContext | null }): Router 
   router.use('/readings',       createReadingsRouter(ctxRef))
   router.use('/contemplative',  createContemplativeRouter(ctxRef))
   router.use('/intercessions',  createIntercessionsRouter(ctxRef))
+  router.use('/prayers',        createPrayersRouter(ctxRef))
 
   const ignatianRouter = createIgnatianRouter(ctxRef)
   router.use('/', ignatianRouter)

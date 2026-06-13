@@ -65,6 +65,9 @@
     practicesLoading: false,
     intercessions:    [],
     practiceSection:  'offices',
+    prayers:          [],
+    prayersLoading:   false,
+    selectedPrayer:   null,
     // Contemplative
     todayPassage:  null,
     libraryOpen:   false,
@@ -160,6 +163,15 @@
     .lr-examen-num { font-size: 11px; font-weight: 700; color: #818cf8; text-transform: uppercase; letter-spacing: .06em; }
     .lr-examen-title { font-size: 15px; font-weight: 700; margin: 2px 0 3px; }
     .lr-examen-desc { font-size: 13px; opacity: .6; margin: 0 0 8px; }
+    /* Common prayers grid */
+    .lr-prayer-card { display: block; width: 100%; text-align: left; background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px; cursor: pointer; transition: border-color .15s, box-shadow .15s; }
+    .lr-prayer-card:hover { border-color: #6366f1; box-shadow: 0 2px 8px rgba(99,102,241,.12); }
+    .lr-prayer-card-title { font-size: 14px; font-weight: 600; color: #111827; margin-bottom: 4px; }
+    .lr-prayer-card-preview { font-size: 12px; color: #6b7280; line-height: 1.5; }
+    /* Prayer modal */
+    .lr-prayer-modal { background: #fff; color: #111827; border-radius: 12px; padding: 28px; width: 560px; max-width: calc(100vw - 32px); max-height: 80vh; overflow-y: auto; }
+    .lr-prayer-modal h3 { margin: 0 0 20px; font-size: 18px; font-weight: 700; }
+    .lr-prayer-text { font-size: 15px; line-height: 2; white-space: pre-wrap; color: #1f2937; }
     @media (max-width: 640px) { .lr-source-btns { flex-direction: column; } }
   `
 
@@ -411,6 +423,31 @@
     `
   }
 
+  function renderPrayersSection() {
+    if (state.prayersLoading) return '<p class="lr-loading">Loading prayers…</p>'
+    const modal = state.selectedPrayer ? `
+      <div class="lr-modal-bg" id="lr-prayer-modal-bg">
+        <div class="lr-prayer-modal">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px">
+            <h3 style="margin:0">${esc(state.selectedPrayer.title)}</h3>
+            <button class="lr-btn sm" id="lr-close-prayer-modal">✕ Close</button>
+          </div>
+          <div class="lr-prayer-text">${esc(state.selectedPrayer.body)}</div>
+        </div>
+      </div>` : ''
+    return `
+      <p class="lr-section-title">Common Prayers</p>
+      <div class="lr-library-grid">
+        ${state.prayers.map(p => `
+          <button class="lr-prayer-card" data-prayer-id="${esc(p.id)}">
+            <div class="lr-prayer-card-title">${esc(p.title)}</div>
+            <div class="lr-prayer-card-preview">${esc((p.body || '').slice(0, 90))}…</div>
+          </button>`).join('')}
+      </div>
+      ${modal}
+    `
+  }
+
   const EXAMEN_STEPS = [
     { key: 'examen_gratitude',    title: 'Gratitude',         desc: 'Give thanks for the gifts of the day' },
     { key: 'examen_light',        title: 'Ask for Light',     desc: 'Pray for clarity to see where God has been at work' },
@@ -440,10 +477,12 @@
         <button class="lr-btn${state.practiceSection==='offices'?' active':''}" data-psec="offices">Offices &amp; Practices</button>
         <button class="lr-btn${state.practiceSection==='intercessions'?' active':''}" data-psec="intercessions">Intercessions</button>
         <button class="lr-btn${state.practiceSection==='examen'?' active':''}" data-psec="examen">Examen</button>
+        <button class="lr-btn${state.practiceSection==='prayers'?' active':''}" data-psec="prayers">Common Prayers</button>
       </div>
       ${state.practiceSection==='offices'       ? renderOfficesSection()       :
         state.practiceSection==='intercessions' ? renderIntercessionsSection() :
-                                                  renderExamenSection()}
+        state.practiceSection==='examen'        ? renderExamenSection()        :
+                                                  renderPrayersSection()}
     `
   }
 
@@ -703,6 +742,10 @@
           await loadIntercessions(container)
           render(container)
         }
+        if (state.practiceSection === 'prayers' && !state.prayers.length) {
+          await loadPrayers()
+          render(container)
+        }
       })
     })
 
@@ -740,6 +783,22 @@
         await loadIntercessions(container)
         render(container)
       })
+    })
+
+    // ── Common Prayers ──
+    container.querySelectorAll('[data-prayer-id]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.dataset.prayerId
+        state.selectedPrayer = state.prayers.find(p => p.id === id) || null
+        render(container)
+      })
+    })
+    container.querySelector('#lr-close-prayer-modal')?.addEventListener('click', () => {
+      state.selectedPrayer = null
+      render(container)
+    })
+    container.querySelector('#lr-prayer-modal-bg')?.addEventListener('click', e => {
+      if (e.target === e.currentTarget) { state.selectedPrayer = null; render(container) }
     })
 
     // ── Contemplative ──
@@ -885,6 +944,12 @@
 
   async function loadIntercessions() {
     state.intercessions = await api.get('/intercessions') || []
+  }
+
+  async function loadPrayers() {
+    state.prayersLoading = true
+    try { state.prayers = await api.get('/prayers') || [] } catch {}
+    state.prayersLoading = false
   }
 
   async function loadTodayPassage(container) {
