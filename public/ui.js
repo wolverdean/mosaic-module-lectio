@@ -136,10 +136,10 @@
     .lr-library-card:hover { opacity: 1; }
     .lr-library-card h4 { margin: 0 0 6px; font-size: 13px; }
     .lr-library-card p { margin: 0; font-size: 12px; opacity: .7; line-height: 1.6; }
-    .lr-ignatian-card { border: 1px solid rgba(34,197,94,.4); border-radius: 10px; padding: 20px; background: rgba(34,197,94,.06); }
-    .lr-ignatian-card h3 { margin: 0 0 8px; font-size: 16px; color: #22c55e; }
-    .lr-ignatian-card .grace { font-style: italic; color: #4ade80; margin: 12px 0; font-size: 14px; }
-    .lr-ignatian-card .scripture { font-weight: 600; color: #4ade80; font-size: 13px; }
+    .lr-ignatian-card { background: #f0fdf4; border: 1px solid #86efac; border-radius: 10px; padding: 20px; }
+    .lr-ignatian-card h3 { margin: 0 0 8px; font-size: 16px; color: #166534; }
+    .lr-ignatian-card .grace { font-style: italic; color: #15803d; margin: 12px 0; font-size: 14px; }
+    .lr-ignatian-card .scripture { font-weight: 600; color: #166534; font-size: 13px; }
     .lr-loading { opacity: .5; font-size: 14px; padding: 20px 0; }
     .lr-error { color: #f87171; font-size: 13px; background: rgba(248,113,113,.1); border: 1px solid rgba(248,113,113,.3); border-radius: 6px; padding: 10px 14px; }
     .lr-modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 1000; display: flex; align-items: center; justify-content: center; }
