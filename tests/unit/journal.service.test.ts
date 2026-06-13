@@ -108,7 +108,7 @@ describe('extractJournalText', () => {
   it('builds labeled transcript from JSON fields', () => {
     const content = JSON.stringify({ general_notes: 'My note', examen_gratitude: 'Thankful' })
     const text = svc.extractJournalText(content)
-    expect(text).toContain('Journal:\nMy note')
+    expect(text).toContain('General Notes:\nMy note')
     expect(text).toContain('Gratitude:\nThankful')
   })
 

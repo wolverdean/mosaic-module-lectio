@@ -68,13 +68,13 @@ describe('AC1+AC2 — journal entry with structured fields', () => {
     const content = JSON.stringify({ examen_gratitude: 'Thankful', general_notes: 'Good day' })
     journal.upsertEntry(db, userId, '2026-06-12', content)
     const text = journal.extractJournalText(content)
-    const journalIdx = text.indexOf('Journal:')
-    const gratitudeIdx = text.indexOf('Gratitude:')
-    expect(journalIdx).toBeLessThan(gratitudeIdx)
+    const generalNotesIdx = text.indexOf('General Notes:')
+    const gratitudeIdx    = text.indexOf('Gratitude:')
+    expect(generalNotesIdx).toBeLessThan(gratitudeIdx)
   })
 
-  it('covers all 16 named fields', () => {
-    expect(journal.JOURNAL_FIELD_ORDER).toHaveLength(16)
+  it('covers all named fields', () => {
+    expect(journal.JOURNAL_FIELD_ORDER).toHaveLength(21)
   })
 })
 
