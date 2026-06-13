@@ -12,19 +12,20 @@ export const JOURNAL_FIELD_ORDER: [string, string][] = [
   ['sacredspace_reflection',   'Sacred Space'],
   ['utmost_reflection',        'My Utmost'],
   ['psalm_reflection',         'Daily Psalm'],
+  ['catholic_reflection',      'Catholic'],
   ['orthodox_reflection',      'Orthodox'],
   ['contemplative_reflection', 'Contemplative'],
   ['ignatian_reflection',      'Ignatian'],
-  // legacy keys kept for backwards-compat with old data
-  ['general_notes',            'General Notes'],
-  ['how',                      'How do you come today?'],
-  ['desire',                   'Desire'],
-  ['reflection',               'Reflection'],
   ['examen_gratitude',         'Gratitude'],
   ['examen_light',             'Ask for Light'],
   ['examen_review',            'Review the Day'],
   ['examen_shortcomings',      'Face Your Shortcomings'],
   ['examen_forward',           'Look Forward'],
+  // legacy keys kept for backwards-compat with old data
+  ['general_notes',            'General Notes'],
+  ['how',                      'How do you come today?'],
+  ['desire',                   'Desire'],
+  ['reflection',               'Reflection'],
 ]
 
 const KNOWN_KEYS = new Set(JOURNAL_FIELD_ORDER.map(([k]) => k))

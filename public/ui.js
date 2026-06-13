@@ -23,16 +23,22 @@
     ['sacredspace_reflection',   'Sacred Space'],
     ['utmost_reflection',        'My Utmost'],
     ['psalm_reflection',         'Daily Psalm'],
+    ['catholic_reflection',      'Catholic'],
     ['orthodox_reflection',      'Orthodox'],
     ['contemplative_reflection', 'Contemplative'],
     ['ignatian_reflection',      'Ignatian'],
+    ['examen_gratitude',         'Examen — Gratitude'],
+    ['examen_light',             'Examen — Ask for Light'],
+    ['examen_review',            'Examen — Review the Day'],
+    ['examen_shortcomings',      'Examen — Shortcomings'],
+    ['examen_forward',           'Examen — Look Forward'],
   ]
 
   const READING_SOURCES = [
     { id: 'sacred-space', label: 'Sacred Space', field: 'sacredspace_reflection' },
     { id: 'utmost',       label: 'My Utmost',    field: 'utmost_reflection'      },
     { id: 'psalm',        label: 'Daily Psalm',  field: 'psalm_reflection'       },
-    { id: 'catholic',     label: 'Catholic',     field: null                     },
+    { id: 'catholic',     label: 'Catholic',     field: 'catholic_reflection'    },
     { id: 'orthodox',     label: 'Orthodox',     field: 'orthodox_reflection'    },
   ]
 
@@ -86,67 +92,74 @@
   // ── CSS ──────────────────────────────────────────────────────────────────────
 
   const CSS = `
-    .lr-wrap { font-family: system-ui, sans-serif; max-width: 900px; margin: 0 auto; padding: 16px; color: #111827; }
+    .lr-wrap { font-family: system-ui, sans-serif; max-width: 900px; margin: 0 auto; padding: 16px; }
     .lr-tabs { display: flex; gap: 4px; border-bottom: 2px solid #e5e7eb; margin-bottom: 20px; flex-wrap: wrap; }
     .lr-tab { padding: 8px 16px; border: none; background: none; cursor: pointer; color: #6b7280; font-size: 14px; border-bottom: 2px solid transparent; margin-bottom: -2px; font-weight: 500; }
-    .lr-tab.active { color: #4f46e5; border-bottom-color: #4f46e5; }
-    .lr-tab:hover:not(.active) { color: #374151; }
+    .lr-tab.active { color: #6366f1; border-bottom-color: #6366f1; }
+    .lr-tab:hover:not(.active) { opacity: .8; }
     .lr-panel { display: none; }
     .lr-panel.active { display: block; }
     .lr-row { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
-    .lr-btn { padding: 7px 14px; border: 1px solid #d1d5db; border-radius: 6px; background: #fff; cursor: pointer; font-size: 13px; color: #374151; }
-    .lr-btn:hover { background: #f9fafb; }
-    .lr-btn.primary { background: #4f46e5; color: #fff; border-color: #4f46e5; }
-    .lr-btn.primary:hover { background: #4338ca; }
-    .lr-btn.danger { background: #fef2f2; color: #dc2626; border-color: #fca5a5; }
+    .lr-btn { padding: 7px 14px; border: 1px solid currentColor; border-radius: 6px; background: transparent; cursor: pointer; font-size: 13px; opacity: .75; }
+    .lr-btn:hover { opacity: 1; }
+    .lr-btn.primary { background: #6366f1; color: #fff; border-color: #6366f1; opacity: 1; }
+    .lr-btn.primary:hover { background: #4f46e5; }
+    .lr-btn.danger { color: #dc2626; border-color: #dc2626; background: transparent; opacity: .8; }
     .lr-btn.sm { padding: 4px 10px; font-size: 12px; }
-    .lr-btn.active { background: #4f46e5; color: #fff; border-color: #4f46e5; }
-    .lr-input { padding: 7px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; box-sizing: border-box; }
-    .lr-textarea { padding: 8px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; width: 100%; box-sizing: border-box; resize: vertical; min-height: 80px; font-family: inherit; line-height: 1.7; }
-    .lr-label { font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 4px; display: block; }
+    .lr-btn.active { background: #6366f1; color: #fff; border-color: #6366f1; opacity: 1; }
+    .lr-input { padding: 7px 10px; border: 1px solid currentColor; border-radius: 6px; font-size: 14px; box-sizing: border-box; background: transparent; color: inherit; opacity: .8; }
+    .lr-textarea { padding: 8px 10px; border: 1px solid currentColor; border-radius: 6px; font-size: 14px; width: 100%; box-sizing: border-box; resize: vertical; min-height: 80px; font-family: inherit; line-height: 1.7; background: transparent; color: inherit; opacity: .9; }
+    .lr-textarea:focus { outline: none; opacity: 1; box-shadow: 0 0 0 2px rgba(99,102,241,.3); }
+    .lr-label { font-size: 13px; font-weight: 600; margin-bottom: 4px; display: block; }
     .lr-field-group { margin-bottom: 16px; }
-    .lr-card { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; margin-bottom: 12px; }
-    .lr-section-title { font-size: 18px; font-weight: 700; margin: 0 0 16px; color: #111827; }
+    .lr-card { border: 1px solid currentColor; border-radius: 8px; padding: 16px; margin-bottom: 12px; opacity: .9; }
+    .lr-section-title { font-size: 18px; font-weight: 700; margin: 0 0 16px; }
     .lr-badge { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 11px; font-weight: 600; margin-right: 4px; }
-    .lr-badge-phase  { background: #ede9fe; color: #5b21b6; }
-    .lr-badge-source { background: #dbeafe; color: #1e40af; }
-    .lr-intercession { display: flex; align-items: center; gap: 8px; padding: 10px 0; border-bottom: 1px solid #f3f4f6; }
+    .lr-badge-phase  { background: rgba(99,102,241,.15); color: #6366f1; }
+    .lr-badge-source { background: rgba(59,130,246,.15); color: #3b82f6; }
+    .lr-intercession { display: flex; align-items: center; gap: 8px; padding: 10px 0; border-bottom: 1px solid currentColor; opacity: .85; }
     .lr-intercession:last-child { border-bottom: none; }
     .lr-intercession-name { font-size: 14px; font-weight: 500; flex: 1; }
-    .lr-intercession-intention { font-size: 12px; color: #6b7280; }
-    .lr-inactive { opacity: 0.45; }
+    .lr-intercession-intention { font-size: 12px; opacity: .65; }
+    .lr-inactive { opacity: 0.35; }
     .lr-history-item { padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; display: flex; justify-content: space-between; }
-    .lr-history-item:hover { background: #f3f4f6; }
-    .lr-history-item.selected { background: #ede9fe; color: #4f46e5; font-weight: 600; }
+    .lr-history-item:hover { background: rgba(99,102,241,.08); }
+    .lr-history-item.selected { background: rgba(99,102,241,.15); color: #6366f1; font-weight: 600; }
     .lr-source-btns { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
-    /* Readings: improved readability */
-    .lr-reading-body { font-size: 15px; line-height: 1.9; color: #111827; margin: 0 0 10px; }
-    .lr-reading-heading { font-size: 11px; font-weight: 700; color: #4f46e5; text-transform: uppercase; letter-spacing: 0.08em; margin: 20px 0 6px; padding-bottom: 4px; border-bottom: 1px solid #e0e7ff; }
-    .lr-passage-meta { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
-    .lr-passage-text { font-size: 15px; line-height: 1.9; color: #111827; border-left: 3px solid #c7d2fe; padding-left: 14px; margin: 8px 0 16px; }
+    /* Readings */
+    .lr-reading-body { font-size: 15px; line-height: 1.9; color: inherit; margin: 0 0 10px; }
+    .lr-reading-heading { font-size: 11px; font-weight: 700; color: #6366f1; text-transform: uppercase; letter-spacing: 0.08em; margin: 20px 0 6px; padding-bottom: 4px; border-bottom: 1px solid rgba(99,102,241,.25); }
+    .lr-passage-meta { font-size: 12px; opacity: .6; margin-bottom: 4px; }
+    .lr-passage-text { font-size: 15px; line-height: 1.9; color: inherit; border-left: 3px solid rgba(99,102,241,.4); padding-left: 14px; margin: 8px 0 16px; }
     .lr-library-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px,1fr)); gap: 12px; }
-    .lr-library-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px; transition: border-color .15s, box-shadow .15s; }
-    .lr-library-card:hover { border-color: #a5b4fc; box-shadow: 0 2px 8px rgba(99,102,241,.12); }
-    .lr-library-card h4 { margin: 0 0 6px; font-size: 13px; color: #111827; }
-    .lr-library-card p { margin: 0; font-size: 12px; color: #4b5563; line-height: 1.6; }
-    .lr-ignatian-card { background: #f0fdf4; border: 1px solid #86efac; border-radius: 10px; padding: 20px; }
-    .lr-ignatian-card h3 { margin: 0 0 8px; font-size: 16px; color: #166534; }
-    .lr-ignatian-card .grace { font-style: italic; color: #15803d; margin: 12px 0; font-size: 14px; }
-    .lr-ignatian-card .scripture { font-weight: 600; color: #166534; font-size: 13px; }
-    .lr-loading { color: #9ca3af; font-size: 14px; padding: 20px 0; }
-    .lr-error { color: #dc2626; font-size: 13px; background: #fef2f2; border: 1px solid #fca5a5; border-radius: 6px; padding: 10px 14px; }
-    .lr-modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 1000; display: flex; align-items: center; justify-content: center; }
-    .lr-modal { background: #fff; border-radius: 10px; padding: 24px; width: 420px; max-width: calc(100vw - 32px); }
+    .lr-library-card { border: 1px solid currentColor; border-radius: 8px; padding: 14px; opacity: .8; transition: opacity .15s; }
+    .lr-library-card:hover { opacity: 1; }
+    .lr-library-card h4 { margin: 0 0 6px; font-size: 13px; }
+    .lr-library-card p { margin: 0; font-size: 12px; opacity: .7; line-height: 1.6; }
+    .lr-ignatian-card { border: 1px solid rgba(34,197,94,.4); border-radius: 10px; padding: 20px; background: rgba(34,197,94,.06); }
+    .lr-ignatian-card h3 { margin: 0 0 8px; font-size: 16px; color: #22c55e; }
+    .lr-ignatian-card .grace { font-style: italic; color: #4ade80; margin: 12px 0; font-size: 14px; }
+    .lr-ignatian-card .scripture { font-weight: 600; color: #4ade80; font-size: 13px; }
+    .lr-loading { opacity: .5; font-size: 14px; padding: 20px 0; }
+    .lr-error { color: #f87171; font-size: 13px; background: rgba(248,113,113,.1); border: 1px solid rgba(248,113,113,.3); border-radius: 6px; padding: 10px 14px; }
+    .lr-modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 1000; display: flex; align-items: center; justify-content: center; }
+    .lr-modal { background: Canvas; color: CanvasText; border-radius: 10px; padding: 24px; width: 420px; max-width: calc(100vw - 32px); border: 1px solid currentColor; }
     .lr-modal h3 { margin: 0 0 16px; font-size: 16px; }
     /* Reflection areas */
-    .lr-reflection { margin-top: 20px; padding: 14px 14px 10px; background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 8px; }
-    .lr-reflection-label { font-size: 11px; font-weight: 700; color: #7c3aed; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; display: block; }
-    .lr-reflection .lr-textarea { border-color: #c4b5fd; background: #fff; }
-    .lr-reflection .lr-textarea:focus { outline: none; border-color: #7c3aed; box-shadow: 0 0 0 2px rgba(124,58,237,.15); }
+    .lr-reflection { margin-top: 20px; padding: 14px 14px 10px; background: rgba(99,102,241,.07); border: 1px solid rgba(99,102,241,.3); border-radius: 8px; }
+    .lr-reflection-label { font-size: 11px; font-weight: 700; color: #818cf8; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; display: block; }
+    .lr-reflection .lr-textarea { border-color: rgba(99,102,241,.35); }
+    .lr-reflection .lr-textarea:focus { border-color: #818cf8; box-shadow: 0 0 0 2px rgba(99,102,241,.2); }
     /* Journal read view */
     .lr-read-entry { margin-bottom: 20px; }
-    .lr-read-label { font-size: 11px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
-    .lr-read-body { font-size: 15px; line-height: 1.8; color: #111827; white-space: pre-wrap; padding: 12px 14px; background: #f9fafb; border-radius: 6px; border: 1px solid #e5e7eb; }
+    .lr-read-label { font-size: 11px; font-weight: 700; opacity: .55; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+    .lr-read-body { font-size: 15px; line-height: 1.8; color: inherit; white-space: pre-wrap; padding: 12px 14px; background: rgba(128,128,128,.08); border-radius: 6px; border: 1px solid rgba(128,128,128,.2); }
+    /* Examen steps */
+    .lr-examen-step { margin-bottom: 22px; padding-bottom: 22px; border-bottom: 1px solid rgba(128,128,128,.15); }
+    .lr-examen-step:last-child { border-bottom: none; }
+    .lr-examen-num { font-size: 11px; font-weight: 700; color: #818cf8; text-transform: uppercase; letter-spacing: .06em; }
+    .lr-examen-title { font-size: 15px; font-weight: 700; margin: 2px 0 3px; }
+    .lr-examen-desc { font-size: 13px; opacity: .6; margin: 0 0 8px; }
     @media (max-width: 640px) { .lr-source-btns { flex-direction: column; } }
   `
 
@@ -398,13 +411,39 @@
     `
   }
 
+  const EXAMEN_STEPS = [
+    { key: 'examen_gratitude',    title: 'Gratitude',         desc: 'Give thanks for the gifts of the day' },
+    { key: 'examen_light',        title: 'Ask for Light',     desc: 'Pray for clarity to see where God has been at work' },
+    { key: 'examen_review',       title: 'Review the Day',    desc: 'Walk through your day with awareness' },
+    { key: 'examen_shortcomings', title: 'Shortcomings',      desc: 'Where did you fall short of your values?' },
+    { key: 'examen_forward',      title: 'Look Forward',      desc: 'Resolve and look toward tomorrow with hope' },
+  ]
+
+  function renderExamenSection() {
+    return `
+      <p class="lr-section-title">Daily Examen</p>
+      <p style="font-size:13px;opacity:.6;margin:-8px 0 20px">A prayerful review of the day in five steps.</p>
+      ${EXAMEN_STEPS.map((step, i) => `
+        <div class="lr-examen-step">
+          <div class="lr-examen-num">Step ${i + 1}</div>
+          <div class="lr-examen-title">${esc(step.title)}</div>
+          <div class="lr-examen-desc">${esc(step.desc)}</div>
+          <textarea class="lr-textarea lr-auto-field" data-field-key="${step.key}" rows="3"
+            placeholder="Write your reflection…">${esc(state.todayFields[step.key] || '')}</textarea>
+        </div>`).join('')}
+    `
+  }
+
   function renderPrayerPanel() {
     return `
       <div class="lr-row" style="margin-bottom:16px">
         <button class="lr-btn${state.practiceSection==='offices'?' active':''}" data-psec="offices">Offices &amp; Practices</button>
         <button class="lr-btn${state.practiceSection==='intercessions'?' active':''}" data-psec="intercessions">Intercessions</button>
+        <button class="lr-btn${state.practiceSection==='examen'?' active':''}" data-psec="examen">Examen</button>
       </div>
-      ${state.practiceSection==='offices' ? renderOfficesSection() : renderIntercessionsSection()}
+      ${state.practiceSection==='offices'       ? renderOfficesSection()       :
+        state.practiceSection==='intercessions' ? renderIntercessionsSection() :
+                                                  renderExamenSection()}
     `
   }
 
@@ -466,7 +505,7 @@
         <span class="lr-badge lr-badge-source">${esc(p.sourceMeta?.label || p.source)}</span>
         <span style="color:#9ca3af;font-size:12px">${esc(p.sourceMeta?.period || '')}</span>
       </div>
-      ${p.title    ? `<h3 style="margin:10px 0 6px;font-size:16px;color:#111827">${esc(p.title)}</h3>` : ''}
+      ${p.title    ? `<h3 style="margin:10px 0 6px;font-size:16px">${esc(p.title)}</h3>` : ''}
       ${p.reference ? `<p style="font-size:13px;font-style:italic;color:#6b7280;margin-bottom:10px">${esc(p.reference)}</p>` : ''}
       <div class="lr-passage-text">${esc(p.text || p.body || '')}</div>
       ${renderReflection('contemplative_reflection', 'Your reflection on this passage…')}
