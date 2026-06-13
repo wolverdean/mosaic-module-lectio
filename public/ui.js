@@ -100,16 +100,16 @@
     .lr-panel { display: none; }
     .lr-panel.active { display: block; }
     .lr-row { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
-    .lr-btn { padding: 7px 14px; border: 1px solid currentColor; border-radius: 6px; background: transparent; cursor: pointer; font-size: 13px; opacity: .75; }
-    .lr-btn:hover { opacity: 1; }
-    .lr-btn.primary { background: #6366f1; color: #fff; border-color: #6366f1; opacity: 1; }
+    .lr-btn { padding: 7px 14px; border: 1px solid #6366f1; border-radius: 6px; background: transparent; cursor: pointer; font-size: 13px; color: #6366f1; }
+    .lr-btn:hover { background: rgba(99,102,241,.08); }
+    .lr-btn.primary { background: #6366f1; color: #fff; border-color: #6366f1; }
     .lr-btn.primary:hover { background: #4f46e5; }
-    .lr-btn.danger { color: #dc2626; border-color: #dc2626; background: transparent; opacity: .8; }
+    .lr-btn.danger { color: #dc2626; border-color: #dc2626; background: transparent; }
     .lr-btn.sm { padding: 4px 10px; font-size: 12px; }
-    .lr-btn.active { background: #6366f1; color: #fff; border-color: #6366f1; opacity: 1; }
-    .lr-input { padding: 7px 10px; border: 1px solid currentColor; border-radius: 6px; font-size: 14px; box-sizing: border-box; background: transparent; color: inherit; opacity: .8; }
-    .lr-textarea { padding: 8px 10px; border: 1px solid currentColor; border-radius: 6px; font-size: 14px; width: 100%; box-sizing: border-box; resize: vertical; min-height: 80px; font-family: inherit; line-height: 1.7; background: transparent; color: inherit; opacity: .9; }
-    .lr-textarea:focus { outline: none; opacity: 1; box-shadow: 0 0 0 2px rgba(99,102,241,.3); }
+    .lr-btn.active { background: #6366f1; color: #fff; border-color: #4f46e5; font-weight: 600; box-shadow: inset 0 1px 3px rgba(0,0,0,.2); }
+    .lr-input { padding: 7px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; box-sizing: border-box; background: #fff; color: #111827; }
+    .lr-textarea { padding: 8px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; width: 100%; box-sizing: border-box; resize: vertical; min-height: 80px; font-family: inherit; line-height: 1.7; background: #fff; color: #111827; }
+    .lr-textarea:focus { outline: none; border-color: #6366f1; box-shadow: 0 0 0 2px rgba(99,102,241,.2); }
     .lr-label { font-size: 13px; font-weight: 600; margin-bottom: 4px; display: block; }
     .lr-field-group { margin-bottom: 16px; }
     .lr-card { border: 1px solid currentColor; border-radius: 8px; padding: 16px; margin-bottom: 12px; opacity: .9; }
@@ -148,8 +148,8 @@
     /* Reflection areas */
     .lr-reflection { margin-top: 20px; padding: 14px 14px 10px; background: rgba(99,102,241,.07); border: 1px solid rgba(99,102,241,.3); border-radius: 8px; }
     .lr-reflection-label { font-size: 11px; font-weight: 700; color: #818cf8; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; display: block; }
-    .lr-reflection .lr-textarea { border-color: rgba(99,102,241,.35); }
-    .lr-reflection .lr-textarea:focus { border-color: #818cf8; box-shadow: 0 0 0 2px rgba(99,102,241,.2); }
+    .lr-reflection .lr-textarea { border-color: #c4b5fd; }
+    .lr-reflection .lr-textarea:focus { border-color: #7c3aed; box-shadow: 0 0 0 2px rgba(124,58,237,.15); }
     /* Journal read view */
     .lr-read-entry { margin-bottom: 20px; }
     .lr-read-label { font-size: 11px; font-weight: 700; opacity: .55; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
