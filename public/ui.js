@@ -36,6 +36,7 @@
     journalHistory: [],
     journalHistoryOpen: false,
     journalSaving: false,
+    journalSaved: false,
     // Readings
     readingSource: 'sacred-space',
     readingData: null,
@@ -160,12 +161,11 @@
   // ── Shell/API reference ──────────────────────────────────────────────────────
 
   let _shell = null
-  const BASE = '/lectio'
   const api = {
-    get:    p      => _shell.api.get(BASE + p),
-    post:   (p, b) => _shell.api.post(BASE + p, b),
-    put:    (p, b) => _shell.api.put(BASE + p, b),
-    delete: p      => _shell.api.delete(BASE + p),
+    get:    p      => _shell.api.get(p),
+    post:   (p, b) => _shell.api.post(p, b),
+    put:    (p, b) => _shell.api.put(p, b),
+    delete: p      => _shell.api.delete(p),
   }
 
   // ── Render helpers ───────────────────────────────────────────────────────────
@@ -220,7 +220,7 @@
             <span class="lr-section-title" style="margin:0">${esc(state.journalDate)}</span>
             <button class="lr-btn sm${state.journalIsJson?'':' active'}" id="lr-mode-plain">Plain</button>
             <button class="lr-btn sm${state.journalIsJson?' active':''}" id="lr-mode-fields">Fields</button>
-            <button class="lr-btn sm primary" id="lr-journal-save">${state.journalSaving?'Saving…':'Save'}</button>
+            <button class="lr-btn sm primary" id="lr-journal-save">${state.journalSaving?'Saving…':state.journalSaved?'Saved ✓':'Save'}</button>
           </div>
           ${editorSection}
         </div>
@@ -437,7 +437,7 @@
         : Object.values(state.libraryData.sources || {}).flat()
       passageHtml = all.length
         ? `<div class="lr-library-grid">${all.map(p => `
-            <div class="lr-library-card">
+            <div class="lr-library-card" data-lib-id="${esc(p.id)}" data-lib-src="${esc(p.source)}" style="cursor:pointer" title="Click to use as today's passage">
               <p class="lr-passage-meta">${esc(p.sourceMeta?.label||p.source)}</p>
               <h4>${esc(p.title || p.reference || '')}</h4>
               <p>${esc((p.text||p.body||'').slice(0,160))}…</p>
@@ -586,7 +586,13 @@
   function bindEvents(container) {
     // Tab switching
     container.querySelectorAll('.lr-tab').forEach(btn => {
-      btn.onclick = () => { state.tab = btn.dataset.tab; render(container) }
+      btn.onclick = () => {
+        state.tab = btn.dataset.tab
+        render(container)
+        if (state.tab === 'readings' && !state.readingData && !state.readingLoading) {
+          loadReading(container)
+        }
+      }
     })
 
     // ── Journal ──
@@ -602,6 +608,9 @@
     if (plainBtn) {
       plainBtn.onclick = () => {
         if (state.journalIsJson) {
+          container.querySelectorAll('[data-field]').forEach(el => {
+            state.journalFields[el.dataset.field] = el.value
+          })
           state.journalContent = JSON.stringify(state.journalFields)
         }
         state.journalIsJson = false
@@ -613,6 +622,8 @@
     if (fieldsBtn) {
       fieldsBtn.onclick = () => {
         if (!state.journalIsJson) {
+          const plain = container.querySelector('#lr-journal-plain')
+          if (plain) state.journalContent = plain.value
           try { state.journalFields = JSON.parse(state.journalContent) } catch { state.journalFields = {} }
         }
         state.journalIsJson = true
@@ -623,9 +634,7 @@
     const saveBtn = container.querySelector('#lr-journal-save')
     if (saveBtn) {
       saveBtn.onclick = async () => {
-        state.journalSaving = true
-        render(container)
-        let content = state.journalContent
+        let content
         if (state.journalIsJson) {
           container.querySelectorAll('[data-field]').forEach(el => {
             state.journalFields[el.dataset.field] = el.value
@@ -633,12 +642,19 @@
           content = JSON.stringify(state.journalFields)
         } else {
           const plain = container.querySelector('#lr-journal-plain')
-          if (plain) content = plain.value
+          content = plain ? plain.value : state.journalContent
         }
+        state.journalSaving = true
+        render(container)
         await api.put(`/journal/${state.journalDate}`, { content })
         state.journalContent = content
+        if (state.journalIsJson) {
+          try { state.journalFields = JSON.parse(content) } catch { state.journalFields = {} }
+        }
         state.journalSaving = false
+        state.journalSaved = true
         render(container)
+        setTimeout(() => { state.journalSaved = false; render(container) }, 2000)
       }
     }
 
@@ -688,12 +704,13 @@
 
     // ── Prayer: section toggle ──
     container.querySelectorAll('[data-psec]').forEach(btn => {
-      btn.onclick = () => {
+      btn.onclick = async () => {
         state.practiceSection = btn.dataset.psec
-        if (state.practiceSection === 'intercessions' && !state.intercessions.length) {
-          loadIntercessions(container)
-        }
         render(container)
+        if (state.practiceSection === 'intercessions' && !state.intercessions.length) {
+          await loadIntercessions(container)
+          render(container)
+        }
       }
     })
 
@@ -763,6 +780,20 @@
         state.librarySource = btn.dataset.libSource
         render(container)
       }
+    })
+
+    container.querySelectorAll('.lr-library-card[data-lib-id]').forEach(card => {
+      card.addEventListener('click', () => {
+        const id  = card.dataset.libId
+        const src = card.dataset.libSrc
+        const passages = state.libraryData?.sources?.[src] || []
+        const passage  = passages.find(p => p.id === id)
+        if (!passage) return
+        state.todayPassage = passage
+        state.contemplativeReflection = ''
+        state.libraryOpen = false
+        render(container)
+      })
     })
 
     const saveRefl = container.querySelector('#lr-save-contemp-reflection')
