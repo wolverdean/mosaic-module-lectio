@@ -122,6 +122,7 @@
     .lr-badge-source { background: rgba(59,130,246,.15); color: #3b82f6; }
     .lr-intercession { display: flex; align-items: center; gap: 8px; padding: 10px 0; border-bottom: 1px solid currentColor; opacity: .85; }
     .lr-intercession:last-child { border-bottom: none; }
+    .lr-intercession.lr-inactive { opacity: .35; }
     .lr-intercession-name { font-size: 14px; font-weight: 500; flex: 1; }
     .lr-intercession-intention { font-size: 12px; opacity: .65; }
     .lr-inactive { opacity: 0.35; }

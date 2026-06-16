@@ -26,7 +26,7 @@ export function createIntercessionsRouter(ctxRef: { current: ModuleContext | nul
 
   router.get('/', (req, res) => {
     try {
-      res.json(track('list', () => svc.listIntercessions(db(), (req as any).userId)))
+      res.json(track('list', () => svc.listIntercessions(db(), (req as any).userId, true)))
     } catch (e: any) {
       ctxRef.current!.logger.error({ err: e }, 'intercessions list failed')
       res.status(500).json({ error: 'Internal error' })
