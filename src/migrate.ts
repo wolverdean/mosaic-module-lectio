@@ -103,4 +103,19 @@ export function migrate(db: ModuleDb): void {
   for (const [id, title, body, sort_order] of builtinPrayers) {
     seedPrayer.run(id, title, body, sort_order)
   }
+
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS lectio_user_prayers (
+      id         INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      title      TEXT    NOT NULL CHECK(length(trim(title)) > 0),
+      body       TEXT    NOT NULL CHECK(length(trim(body))  > 0),
+      sort_order INTEGER NOT NULL DEFAULT 0,
+      created_at TEXT    NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now'))
+    )
+  `)
+  db.exec(`
+    CREATE INDEX IF NOT EXISTS idx_lectio_user_prayers_user
+      ON lectio_user_prayers(user_id, sort_order, id)
+  `)
 }

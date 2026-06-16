@@ -68,6 +68,10 @@
     prayers:          [],
     prayersLoading:   false,
     selectedPrayer:   null,
+    userPrayers:        [],
+    userPrayersLoading: false,
+    userPrayersError:   null,
+    userPrayerFormOpen: false,
     // Contemplative
     todayPassage:  null,
     libraryOpen:   false,
@@ -449,6 +453,77 @@
     `
   }
 
+  function renderUserPrayersSection() {
+    if (state.userPrayersLoading) {
+      return '<p class="lr-loading">Loading your prayers…</p>'
+    }
+    if (state.userPrayersError) {
+      return `
+        <p class="lr-section-label" style="color:var(--danger,#ef4444)">Could not load prayers.</p>
+        <button class="lr-btn sm" id="lr-retry-user-prayers">Retry</button>
+      `
+    }
+
+    const formHtml = state.userPrayerFormOpen ? `
+      <form id="lr-user-prayer-form" style="margin-bottom:20px;border:1px solid #e5e7eb;border-radius:8px;padding:16px;background:#fafafa">
+        <p id="lr-upr-error" style="color:#ef4444;font-size:13px;margin:0 0 8px;min-height:1em"></p>
+        <div class="lr-field-group">
+          <label class="lr-label">Title</label>
+          <input id="lr-upr-title" type="text" placeholder="Prayer title" class="lr-input" style="width:100%;box-sizing:border-box" />
+        </div>
+        <div class="lr-field-group">
+          <label class="lr-label">Prayer text</label>
+          <textarea id="lr-upr-body" rows="5" placeholder="Prayer text…" class="lr-textarea"></textarea>
+        </div>
+        <div class="lr-row" style="margin-top:8px">
+          <button type="submit" class="lr-btn primary sm">Save</button>
+          <button type="button" id="lr-cancel-user-prayer" class="lr-btn sm">Cancel</button>
+        </div>
+      </form>
+    ` : ''
+
+    const emptyHtml = !state.userPrayers.length
+      ? '<p style="font-size:13px;color:#6b7280">Your personal prayer collection is empty. Add your first prayer above.</p>'
+      : ''
+
+    const gridHtml = state.userPrayers.length ? `
+      <div class="lr-library-grid">
+        ${state.userPrayers.map(p => `
+          <div class="lr-prayer-card" style="position:relative">
+            <button class="lr-user-prayer-body" data-user-prayer-id="${esc(String(p.id))}" style="display:block;width:100%;text-align:left;background:none;border:none;cursor:pointer;padding:0">
+              <div class="lr-prayer-card-title">${esc(p.title)}</div>
+              <div class="lr-prayer-card-preview">${esc((p.body || '').slice(0, 90))}…</div>
+            </button>
+            <button class="lr-btn sm lr-delete-user-prayer" data-del-prayer-id="${esc(String(p.id))}"
+              style="position:absolute;top:8px;right:8px;font-size:11px">✕</button>
+          </div>
+        `).join('')}
+      </div>
+    ` : ''
+
+    const modal = state.selectedPrayer ? `
+      <div class="lr-modal-bg" id="lr-prayer-modal-bg">
+        <div class="lr-prayer-modal">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+            <h3 style="margin:0">${esc(state.selectedPrayer.title)}</h3>
+            <button class="lr-btn sm" id="lr-close-prayer-modal">✕ Close</button>
+          </div>
+          <div class="lr-prayer-text">${esc(state.selectedPrayer.body)}</div>
+        </div>
+      </div>` : ''
+
+    return `
+      ${modal}
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <p class="lr-section-title" style="margin:0">My Prayers</p>
+        <button class="lr-btn sm" id="lr-add-user-prayer">+ Add Prayer</button>
+      </div>
+      ${formHtml}
+      ${emptyHtml}
+      ${gridHtml}
+    `
+  }
+
   const EXAMEN_STEPS = [
     { key: 'examen_gratitude',    title: 'Gratitude',         desc: 'Give thanks for the gifts of the day' },
     { key: 'examen_light',        title: 'Ask for Light',     desc: 'Pray for clarity to see where God has been at work' },
@@ -479,10 +554,12 @@
         <button class="lr-btn${state.practiceSection==='intercessions'?' active':''}" data-psec="intercessions">Intercessions</button>
         <button class="lr-btn${state.practiceSection==='examen'?' active':''}" data-psec="examen">Examen</button>
         <button class="lr-btn${state.practiceSection==='prayers'?' active':''}" data-psec="prayers">Common Prayers</button>
+        <button class="lr-btn${state.practiceSection==='my-prayers'?' active':''}" data-psec="my-prayers">My Prayers</button>
       </div>
       ${state.practiceSection==='offices'       ? renderOfficesSection()       :
         state.practiceSection==='intercessions' ? renderIntercessionsSection() :
         state.practiceSection==='examen'        ? renderExamenSection()        :
+        state.practiceSection==='my-prayers'    ? renderUserPrayersSection()   :
                                                   renderPrayersSection()}
     `
   }
@@ -747,6 +824,10 @@
           await loadPrayers()
           render(container)
         }
+        if (state.practiceSection === 'my-prayers' && !state.userPrayers.length && !state.userPrayersLoading) {
+          await loadUserPrayers()
+          render(container)
+        }
       })
     })
 
@@ -800,6 +881,67 @@
     })
     container.querySelector('#lr-prayer-modal-bg')?.addEventListener('click', e => {
       if (e.target === e.currentTarget) { state.selectedPrayer = null; render(container) }
+    })
+
+    // ── My Prayers ──
+    // Add button
+    container.querySelector('#lr-add-user-prayer')?.addEventListener('click', () => {
+      state.userPrayerFormOpen = true
+      render(container)
+    })
+
+    // Cancel button
+    container.querySelector('#lr-cancel-user-prayer')?.addEventListener('click', () => {
+      state.userPrayerFormOpen = false
+      render(container)
+    })
+
+    // Form submit
+    container.querySelector('#lr-user-prayer-form')?.addEventListener('submit', async e => {
+      e.preventDefault()
+      const title = container.querySelector('#lr-upr-title')?.value?.trim()
+      const body  = container.querySelector('#lr-upr-body')?.value?.trim()
+      if (!title || !body) return
+      try {
+        const prayer = await api.post('/user-prayers', { title, body })
+        state.userPrayers.push(prayer)
+        state.userPrayerFormOpen = false
+        render(container)
+      } catch (err) {
+        const errEl = container.querySelector('#lr-upr-error')
+        if (errEl) errEl.textContent = err.message || 'Failed to save'
+      }
+    })
+
+    // Delete button
+    container.querySelectorAll('.lr-delete-user-prayer').forEach(btn => {
+      btn.addEventListener('click', async e => {
+        e.stopPropagation()
+        if (!confirm('Delete this prayer?')) return
+        const id = btn.dataset.delPrayerId
+        try {
+          await api.delete(`/user-prayers/${id}`)
+          state.userPrayers = state.userPrayers.filter(p => String(p.id) !== id)
+          render(container)
+        } catch (err) {
+          alert('Could not delete prayer: ' + (err.message || 'Unknown error'))
+        }
+      })
+    })
+
+    // Open prayer modal (click on card body)
+    container.querySelectorAll('.lr-user-prayer-body').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.dataset.userPrayerId
+        state.selectedPrayer = state.userPrayers.find(p => String(p.id) === id) || null
+        render(container)
+      })
+    })
+
+    // Retry on error
+    container.querySelector('#lr-retry-user-prayers')?.addEventListener('click', async () => {
+      await loadUserPrayers()
+      render(container)
     })
 
     // ── Contemplative ──
@@ -951,6 +1093,17 @@
     state.prayersLoading = true
     try { state.prayers = await api.get('/prayers') || [] } catch {}
     state.prayersLoading = false
+  }
+
+  async function loadUserPrayers() {
+    state.userPrayersLoading = true
+    state.userPrayersError = null
+    try {
+      state.userPrayers = await api.get('/user-prayers') || []
+    } catch (e) {
+      state.userPrayersError = e.message || 'Failed to load'
+    }
+    state.userPrayersLoading = false
   }
 
   async function loadTodayPassage(container) {
