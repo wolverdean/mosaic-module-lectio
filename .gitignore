@@ -1,3 +1,8 @@
 node_modules/
 dist/
 *.js.map
+
+# Feature Factory (managed externally — install via feature-factory repo)
+.claude/agents/
+.claude/hooks/
+.claude/skills/
